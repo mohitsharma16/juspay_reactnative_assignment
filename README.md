@@ -25,3 +25,4 @@ collide.
 playground.
 
 all of them are successfully done 
+expo link:https://expo.dev/artifacts/eas/fTx78T6XFiEaimBabAnova.aab
