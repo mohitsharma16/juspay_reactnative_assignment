@@ -12,17 +12,29 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.juspay"
+      "package": "com.anonymous.juspay",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eb8ed6f1-e6ad-46e2-81a5-bfdb7da71f15"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/eb8ed6f1-e6ad-46e2-81a5-bfdb7da71f15"
     }
   }
 }
