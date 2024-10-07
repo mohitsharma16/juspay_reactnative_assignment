@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -10,7 +10,7 @@ export default function ActionPanel() {
 
   const codeOptions = [
     "Move X by 50",
-    "Move Y by 50",
+    "Move X by -50",
     "Rotate 360",
     "Go to (0,0)",
     "Move X=50, Y=50",
@@ -18,6 +18,7 @@ export default function ActionPanel() {
     "Repeat",
   ];
 
+    
   const handleDrop = (item) => {
     if (actions) {
       setActions((prevActions) => ({
@@ -38,11 +39,14 @@ export default function ActionPanel() {
 
   // Navigation function to MainScreen with actions
   const navigateToMainScreen = () => {
+    console.log("sprite1Actions:", actions.sprite1);
+    console.log("sprite2Actions:", actions.sprite2);
     navigation.navigate('MainScreen', {
       sprite1Actions: actions.sprite1,
       sprite2Actions: actions.sprite2,
     });
   };
+  
 
   return (
     <View style={styles.container}>

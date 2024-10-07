@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, ScrollView, Dimensions, Modal, FlatList, PanResponder } from 'react-native';
 import Header from '../components/Header';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,21 +18,46 @@ export default function MainScreen({ navigation, route }) {
 
   const availableSprites = [
     { id: 'cat', name: 'Cat', image: require('../../assets/scratch_cat1.png') },
-    { id: 'dog', name: 'Dog', image: require('../../assets/scratch_dog1.png') },
     { id: 'dragon', name: 'Dragon', image: require('../../assets/scratch_dragon1.png') },
   ];
+  useEffect(() => {
+    if (route.params?.sprite1Actions || route.params?.sprite2Actions) {
+      console.log("sprite1Actions:", sprite1Actions);
+      console.log("sprite2Actions:", sprite2Actions);
+
+      // Update sprite actions when navigating back from ActionPanel
+      setSprites((prevSprites) => {
+        return prevSprites.map((sprite) => {
+          if (sprite.name === 'Cat') {
+            return { ...sprite, actions: route.params.sprite1Actions || [] };
+          } else if (sprite.name === 'Dragon') {
+            return { ...sprite, actions: route.params.sprite2Actions || [] };
+          } else {
+            return sprite;
+          }
+        });
+      });
+    }
+  }, [route.params]);
 
   const handleAddSprite = (sprite) => {
     if (sprites.length < 2) {
       const newId = Date.now();
+      
+      // Assign sprite actions based on sprite type or leave it empty
+      const spriteActions = sprite.name === 'Cat' ? sprite1Actions : sprite.name === 'Dragon' ? sprite2Actions : [];
+  
       const newSprite = {
         id: newId,
         name: sprite.name,
         image: sprite.image,
         position: new Animated.ValueXY({ x: 0, y: 0 }),
         rotation: new Animated.Value(0),
-        actions: sprite.id === 'cat' ? sprite1Actions : sprite2Actions, // Assign actions based on sprite
+        actions: spriteActions, // Assign the passed actions or initialize empty
       };
+  
+      console.log("Adding sprite with actions:", newSprite.actions);
+  
       setSprites([...sprites, newSprite]);
       setSpritePositions((prevPositions) => ({
         ...prevPositions,
@@ -42,6 +67,8 @@ export default function MainScreen({ navigation, route }) {
       setSpriteSelectionVisible(false);
     }
   };
+  
+  
 
   // Function to detect if two sprites are colliding
   const isColliding = () => {
@@ -49,28 +76,41 @@ export default function MainScreen({ navigation, route }) {
       const [sprite1, sprite2] = sprites;
       const sprite1Pos = spritePositions[sprite1.id] || { x: 0, y: 0 };
       const sprite2Pos = spritePositions[sprite2.id] || { x: 0, y: 0 };
-
+  
       const distance = Math.sqrt(
         Math.pow(sprite1Pos.x - sprite2Pos.x, 2) + Math.pow(sprite1Pos.y - sprite2Pos.y, 2)
       );
-
-      return distance < spriteSize; // If the distance is less than spriteSize, they are colliding
+  
+      console.log("Distance between sprites:", distance); // Logging distance
+  
+      if (distance < spriteSize) {
+        console.log("Collision detected!"); // Log if collision occurs
+        return true;
+      }
     }
     return false;
   };
+  
 
   // Function to swap animations after collision
   const swapAnimations = () => {
     if (isColliding()) {
+      console.log("Swapping animations due to collision...");
+  
       const [sprite1, sprite2] = sprites;
-
       const tempActions = sprite1.actions;
+      
+      // Swap actions between the sprites
       sprite1.actions = sprite2.actions;
       sprite2.actions = tempActions;
-
+  
+      // Optionally, trigger a visual change, like a color change or animation reset
       setSprites([sprite1, sprite2]); // Update the sprites with swapped actions
+  
+      // You could also trigger a collision animation here if needed
     }
   };
+  
 
   const panResponder = (sprite) =>
     PanResponder.create({
@@ -101,68 +141,79 @@ export default function MainScreen({ navigation, route }) {
     });
 
   // Function to execute actions for each sprite
+  // Function to execute actions for each sprite
   const performActions = () => {
     sprites.forEach((sprite) => {
       const actions = sprite.actions;
-
+      console.log("Executing actions for sprite:", sprite.name, actions);
+  
       const animations = actions.map((action) => {
-        switch (action.name) {
-          case "Move X by 50":
-            return Animated.timing(sprite.position, {
+        console.log("Running action:", action.name);
+      switch (action.name) {
+        case "Move X by 50":
+          return Animated.timing(sprite.position, {
+            toValue: { x: sprite.position.x._value + 50, y: sprite.position.y._value },
+            duration: 1000,
+            useNativeDriver: false,
+          });
+        case "Move X by -50":
+          return Animated.timing(sprite.position, {
+            toValue: { x: sprite.position.x._value - 50, y: sprite.position.y._value  },
+            duration: 1000,
+            useNativeDriver: false,
+          });
+        case "Rotate 360":
+          return Animated.sequence([
+            Animated.timing(sprite.rotation, {
+              toValue: 1,
+              duration: 1000,
+              useNativeDriver: false,
+            }),
+            Animated.timing(sprite.rotation, {
+              toValue: 0, // Reset rotation after completing 360
+              duration: 0,
+              useNativeDriver: false,
+            }),
+          ]);
+        case "Go to (0,0)":
+          return Animated.timing(sprite.position, {
+            toValue: { x: 0, y: 0 },
+            duration: 1000,
+            useNativeDriver: false,
+          });
+        case "Move X=50, Y=50":
+          return Animated.timing(sprite.position, {
+            toValue: { x: sprite.position.x._value + 50, y: sprite.position.y._value + 50 },
+            duration: 1000,
+            useNativeDriver: false,
+          });
+        case "Go to random position":
+          const randomX = Math.floor(Math.random() * 300);
+          const randomY = Math.floor(Math.random() * 500);
+          return Animated.timing(sprite.position, {
+            toValue: { x: randomX, y: randomY },
+            duration: 1000,
+            useNativeDriver: false,
+          });
+        case "Repeat":
+          return Animated.loop(
+            Animated.timing(sprite.position, {
               toValue: { x: sprite.position.x._value + 50, y: sprite.position.y._value },
-              duration: 1000,
+              duration: 500,
               useNativeDriver: false,
-            });
-          case "Move Y by 50":
-            return Animated.timing(sprite.position, {
-              toValue: { x: sprite.position.x._value, y: sprite.position.y._value + 50 },
-              duration: 1000,
-              useNativeDriver: false,
-            });
-          case "Rotate 360":
-            return Animated.timing(sprite.rotation, {
-              toValue: 360,
-              duration: 1000,
-              useNativeDriver: false,
-            });
-          case "Go to (0,0)":
-            return Animated.timing(sprite.position, {
-              toValue: { x: 0, y: 0 },
-              duration: 1000,
-              useNativeDriver: false,
-            });
-          case "Move X=50, Y=50":
-            return Animated.timing(sprite.position, {
-              toValue: { x: sprite.position.x._value + 50, y: sprite.position.y._value + 50 },
-              duration: 1000,
-              useNativeDriver: false,
-            });
-          case "Go to random position":
-            const randomX = Math.floor(Math.random() * 300);
-            const randomY = Math.floor(Math.random() * 500);
-            return Animated.timing(sprite.position, {
-              toValue: { x: randomX, y: randomY },
-              duration: 1000,
-              useNativeDriver: false,
-            });
-          case "Repeat":
-            return Animated.loop(
-              Animated.timing(sprite.position, {
-                toValue: { x: sprite.position.x._value + 50, y: sprite.position.y._value },
-                duration: 500,
-                useNativeDriver: false,
-              }),
-              { iterations: 3 }
-            );
-          default:
-            return null;
-        }
-      }).filter(Boolean);
+            }),
+            { iterations: 3 }
+          );
+        default:
+          return null;
+      }
+    }).filter(Boolean);
 
-      // Run all animations in sequence
-      Animated.sequence(animations).start();
-    });
-  };
+    // Run all animations in sequence
+    Animated.sequence(animations).start();
+  });
+};
+
 
   // Function to delete a sprite
   const handleDeleteSprite = (spriteId) => {
