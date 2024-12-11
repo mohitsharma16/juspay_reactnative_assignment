@@ -162,11 +162,11 @@ export default function MainScreen({ navigation, route }) {
             duration: 1000,
             useNativeDriver: false,
           });
-        case "Rotate 360":
+        case "Rotate 30":
           return Animated.sequence([
             Animated.timing(sprite.rotation, {
               toValue: 1,
-              duration: 1000,
+              duration: 500,
               useNativeDriver: false,
             }),
             Animated.timing(sprite.rotation, {
@@ -188,8 +188,8 @@ export default function MainScreen({ navigation, route }) {
             useNativeDriver: false,
           });
         case "Go to random position":
-          const randomX = Math.floor(Math.random() * 300);
-          const randomY = Math.floor(Math.random() * 500);
+          const randomX = Math.floor(Math.random() * 150);
+          const randomY = Math.floor(Math.random() * 200);
           return Animated.timing(sprite.position, {
             toValue: { x: randomX, y: randomY },
             duration: 1000,
