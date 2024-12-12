@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.juspay",
+      "package": "com.example.juspay",
       "runtimeVersion": "1.0.0"
     },
     "web": {
@@ -36,6 +36,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/eb8ed6f1-e6ad-46e2-81a5-bfdb7da71f15"
-    }
+    },
+    "owner": "mohitsharma16"
   }
 }
