@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.example.juspay",
+      "package": "com.anonymous.juspay",
       "runtimeVersion": "1.0.0"
     },
     "web": {
